@@ -4,12 +4,14 @@ from app.agents.diagnosis_agent import build_diagnosis_agent
 from app.agents.triage_agent import build_triage_agent
 from app.agents.remediation_agent import build_remediation_agent
 from app.agents.severity_agent import build_severity_agent
+from app.agents.reporter_agent import build_reporter_agent
 
 def build_triage_diagnosis_crew() -> Crew:
     triage_agent = build_triage_agent()
     diagnosis_agent = build_diagnosis_agent()
     remediation_agent = build_remediation_agent()
     severity_agent = build_severity_agent()
+    reporter_agent = build_reporter_agent()
 
     triage_task = Task(
         description=(
@@ -78,10 +80,33 @@ def build_triage_diagnosis_crew() -> Crew:
         context=[triage_task, diagnosis_task, remediation_task],
     )
 
+    reporter_task = Task(
+        description=(
+            "Generate a professional Markdown incident report using all "
+            "previous agent outputs.\n\n"
+
+            "The report must contain:\n"
+            "# Summary\n"
+            "# Timeline\n"
+            "# Root Cause\n"
+            "# Impact\n"
+            "# Remediation\n"
+            "# Follow-up Actions\n"
+        ),
+        expected_output="A complete Markdown incident report.",
+        agent=reporter_agent,
+        context=[
+            triage_task,
+            diagnosis_task,
+            remediation_task,
+            severity_task,
+        ],
+    )
+
 
     return Crew(
-        agents=[triage_agent, diagnosis_agent, remediation_agent , severity_agent],
-        tasks=[triage_task, diagnosis_task, remediation_task, severity_task],
+        agents=[triage_agent, diagnosis_agent, remediation_agent , severity_agent, reporter_agent],
+        tasks=[triage_task, diagnosis_task, remediation_task, severity_task, reporter_task],
         process=Process.sequential,
         verbose=True,
     )
