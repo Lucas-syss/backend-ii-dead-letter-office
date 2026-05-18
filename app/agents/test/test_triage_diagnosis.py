@@ -1,4 +1,4 @@
-from app.agents.crew import run_triage_diagnosis
+from app.services.crew_service import run_crew
 
 
 event = {
@@ -16,7 +16,11 @@ event = {
     },
 }
 
-response = run_triage_diagnosis(event)
+response = run_crew(event)
 
-print("\n===== TRIAGE + DIAGNOSIS RESULT =====\n")
-print(response)
+print("\n===== CREW REPORT RESULT =====\n")
+print("Success:", response["success"])
+print("Report path:", response["report_path"])
+
+print("\n===== REPORT CONTENT =====\n")
+print(response["report"])

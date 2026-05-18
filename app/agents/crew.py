@@ -2,11 +2,16 @@ from crewai import Crew, Process, Task
 
 from app.agents.diagnosis_agent import build_diagnosis_agent
 from app.agents.triage_agent import build_triage_agent
-
+from app.agents.remediation_agent import build_remediation_agent
+from app.agents.severity_agent import build_severity_agent
+from app.agents.reporter_agent import build_reporter_agent
 
 def build_triage_diagnosis_crew() -> Crew:
     triage_agent = build_triage_agent()
     diagnosis_agent = build_diagnosis_agent()
+    remediation_agent = build_remediation_agent()
+    severity_agent = build_severity_agent()
+    reporter_agent = build_reporter_agent()
 
     triage_task = Task(
         description=(
@@ -44,9 +49,64 @@ def build_triage_diagnosis_crew() -> Crew:
         context=[triage_task],
     )
 
+    remediation_task = Task(
+        description=(
+            "Based on the triage classification and diagnosis, propose actionable "
+            "remediation steps to resolve the incident and prevent future occurrences."
+        ),
+        expected_output=(
+            "A list of clear, actionable remediation steps that can be taken to "
+            "address the incident and prevent it from happening again."
+        ),
+        agent=remediation_agent,
+        context=[triage_task, diagnosis_task],
+    )
+
+    severity_task = Task(
+        description=(
+            "Based on the triage classification, diagnosis, and remediation output, "
+            "classify the severity of this incident.\n\n"
+
+            "Severity rubric:\n"
+            "- Crítico: Production down, revenue impacted, or many users affected\n"
+            "- Alto: Degraded production or partial outage\n"
+            "- Médio: Non-critical path failing with workaround available\n"
+            "- Baixo: Minor issue or development/staging only\n\n"
+
+            "Return only one value: Crítico, Alto, Médio, or Baixo."
+        ),
+        expected_output="One of: Crítico, Alto, Médio, or Baixo",
+        agent=severity_agent,
+        context=[triage_task, diagnosis_task, remediation_task],
+    )
+
+    reporter_task = Task(
+        description=(
+            "Generate a professional Markdown incident report using all "
+            "previous agent outputs.\n\n"
+
+            "The report must contain:\n"
+            "# Summary\n"
+            "# Timeline\n"
+            "# Root Cause\n"
+            "# Impact\n"
+            "# Remediation\n"
+            "# Follow-up Actions\n"
+        ),
+        expected_output="A complete Markdown incident report.",
+        agent=reporter_agent,
+        context=[
+            triage_task,
+            diagnosis_task,
+            remediation_task,
+            severity_task,
+        ],
+    )
+
+
     return Crew(
-        agents=[triage_agent, diagnosis_agent],
-        tasks=[triage_task, diagnosis_task],
+        agents=[triage_agent, diagnosis_agent, remediation_agent , severity_agent, reporter_agent],
+        tasks=[triage_task, diagnosis_task, remediation_task, severity_task, reporter_task],
         process=Process.sequential,
         verbose=True,
     )
