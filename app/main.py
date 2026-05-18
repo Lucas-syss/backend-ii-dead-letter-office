@@ -6,6 +6,8 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
 from app.api.v1.router import router as v1_router
+from app.models.event import Event      
+from app.models.incident import Incident 
 from app.config import settings
 from app.db.session import engine
 from app.db.base import Base
