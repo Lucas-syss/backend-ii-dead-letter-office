@@ -6,10 +6,10 @@ from app.agents.llm import get_llm
 def build_triage_agent() -> Agent:
     return Agent(
         role="Incident Triage Specialist",
-        goal="Classify failures and extract structured metadata",
+        goal="Classify failed backend events into structured incident types",
         backstory=(
-            "You are an expert SRE focused on identifying "
-            "incident categories and affected systems."
+            "You are an experienced SRE. Your job is to inspect failed system "
+            "events and classify them into a precise incident category."
         ),
         llm=get_llm(),
         verbose=True,
