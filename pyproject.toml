@@ -23,6 +23,9 @@ dependencies = [
 [project.scripts]
 dlo = "app.cli.dlo:app"
 
+[tool.setuptools.packages.find]
+include = ["app*"]
+
 # ── Ruff (linter + formatter) ──────────────────────────────────────────────
 [tool.ruff]
 target-version = "py312"

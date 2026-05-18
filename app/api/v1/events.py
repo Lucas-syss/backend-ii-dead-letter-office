@@ -2,7 +2,7 @@ import logging
 
 from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, Query, status
 from sqlalchemy.ext.asyncio import AsyncSession
-
+from app.db.session import AsyncSessionLocal
 from app.api.deps import get_db
 from app.schemas.event import (
     EventIngestResponse,
@@ -50,20 +50,34 @@ def _build_event_response(event) -> EventResponse:
         incident=incident,
     )
 
-
 async def _trigger_crew(event_id: str) -> None:
-    """
-    Background task — runs the CrewAI crew for a given event.
+    """Background task — runs the CrewAI crew for a given event."""
+    import asyncio
+    from app.services.crew_service import run_crew
 
-    This stub will be replaced with the real crew call once
-    Miguel completes Cards 2.1–2.3. For now it just logs.
+    async with AsyncSessionLocal() as db:
+        event = await event_service.get_event(db, event_id)
+        if not event:
+            logger.warning("_trigger_crew: event_id=%s not found", event_id)
+            return
 
-    To integrate: replace the body with:
-        from app.services.crew_service import run_crew
-        await run_crew(event_id)
-    """
-    logger.info("Crew trigger called for event_id=%s (stub — crew not yet wired)", event_id)
+        await event_service.update_event_status(db, event_id, "processing")
 
+        event_data = {
+            "source": event.source,
+            "service": event.service,
+            "error_code": event.error_code,
+            "error_message": event.error_message,
+            "payload": event.payload,
+            "metadata": event.metadata_,
+        }
+
+    loop = asyncio.get_event_loop()
+    result = await loop.run_in_executor(None, run_crew, event_data)
+
+    async with AsyncSessionLocal() as db:
+        await event_service.update_event_status(db, event_id, "resolved")
+        logger.info("Crew complete for event_id=%s report saved to %s", event_id, result.get("report_path"))
 # ── Routes ────────────────────────────────────────────────────────────────
 
 @router.post(
