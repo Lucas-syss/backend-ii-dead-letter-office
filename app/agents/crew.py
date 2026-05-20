@@ -68,14 +68,14 @@ def build_triage_diagnosis_crew() -> Crew:
             "classify the severity of this incident.\n\n"
 
             "Severity rubric:\n"
-            "- Crítico: Production down, revenue impacted, or many users affected\n"
-            "- Alto: Degraded production or partial outage\n"
-            "- Médio: Non-critical path failing with workaround available\n"
-            "- Baixo: Minor issue or development/staging only\n\n"
+            "- P1: Production down, revenue impacted, or many users affected\n"
+            "- P2: Degraded production or partial outage\n"
+            "- P3: Non-critical path failing with workaround available\n"
+            "- P4: Minor issue or development/staging only\n\n"
 
-            "Return only one value: Crítico, Alto, Médio, or Baixo."
+            "Return only one value: P1, P2, P3, or P4."
         ),
-        expected_output="One of: Crítico, Alto, Médio, or Baixo",
+        expected_output="One of: P1, P2, P3, or P4",
         agent=severity_agent,
         context=[triage_task, diagnosis_task, remediation_task],
     )
