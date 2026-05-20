@@ -53,6 +53,7 @@ def _build_event_response(event) -> EventResponse:
 async def _trigger_crew(event_id: str) -> None:
     """Background task — runs the CrewAI crew for a given event."""
     import asyncio
+    from app.models.incident import Incident
     from app.services.crew_service import run_crew
 
     async with AsyncSessionLocal() as db:
@@ -60,9 +61,7 @@ async def _trigger_crew(event_id: str) -> None:
         if not event:
             logger.warning("_trigger_crew: event_id=%s not found", event_id)
             return
-
         await event_service.update_event_status(db, event_id, "processing")
-
         event_data = {
             "source": event.source,
             "service": event.service,
@@ -76,8 +75,21 @@ async def _trigger_crew(event_id: str) -> None:
     result = await loop.run_in_executor(None, run_crew, event_data)
 
     async with AsyncSessionLocal() as db:
+        incident = Incident(
+            event_id=event_id,
+            event_type=result.get("event_type", "unknown"),
+            root_cause=result.get("root_cause", "See report."),
+            remediation_attempted=True,
+            remediation_result=result.get("remediation", "See report."),
+            severity=result.get("severity", "P3"),
+            report_md=result.get("report", ""),
+            escalated=False,
+            raw_agent_output=result,
+        )
+        db.add(incident)
+        await db.commit()
         await event_service.update_event_status(db, event_id, "resolved")
-        logger.info("Crew complete for event_id=%s report saved to %s", event_id, result.get("report_path"))
+        logger.info("Incident saved for event_id=%s", event_id)
 # ── Routes ────────────────────────────────────────────────────────────────
 
 @router.post(
