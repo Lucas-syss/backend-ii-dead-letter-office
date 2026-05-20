@@ -1,0 +1,37 @@
+services:
+
+  db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-dlo}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-dlo_secret}
+      POSTGRES_DB: ${POSTGRES_DB:-deadletteroffice}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-dlo} -d ${POSTGRES_DB:-deadletteroffice}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+  app:
+    build: .
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    env_file:
+      - .env
+    environment:
+      DATABASE_URL: postgresql+asyncpg://${POSTGRES_USER:-dlo}:${POSTGRES_PASSWORD:-dlo_secret}@db:5432/${POSTGRES_DB:-deadletteroffice}
+      ENV: production
+    volumes:
+      - reports_data:/app/reports
+    depends_on:
+      db:
+        condition: service_healthy
+
+volumes:
+  postgres_data:
+  reports_data:
