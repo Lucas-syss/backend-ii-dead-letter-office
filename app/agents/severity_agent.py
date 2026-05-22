@@ -2,6 +2,7 @@ from crewai import Agent
 
 from app.agents.llm import get_llm
 
+
 def build_severity_agent() -> Agent:
     return Agent(
         role="Incident Severity Classifier",

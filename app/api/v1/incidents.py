@@ -13,6 +13,7 @@ router = APIRouter()
 
 # ── Helpers ───────────────────────────────────────────────────────────────
 
+
 def _build_incident_response(incident) -> IncidentResponse:
     """Map an Incident ORM object to an IncidentResponse schema."""
     return IncidentResponse(
@@ -31,6 +32,7 @@ def _build_incident_response(incident) -> IncidentResponse:
 
 
 # ── Routes ────────────────────────────────────────────────────────────────
+
 
 @router.get(
     "",

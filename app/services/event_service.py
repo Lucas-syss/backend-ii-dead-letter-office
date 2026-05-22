@@ -1,5 +1,5 @@
 import logging
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -38,9 +38,7 @@ async def get_event(db: AsyncSession, event_id: str) -> Event | None:
     Returns None if not found.
     """
     result = await db.execute(
-        select(Event)
-        .options(selectinload(Event.incident))
-        .where(Event.id == event_id)
+        select(Event).options(selectinload(Event.incident)).where(Event.id == event_id)
     )
     return result.scalar_one_or_none()
 
@@ -69,6 +67,7 @@ async def list_events(
 
     if severity:
         from app.models.incident import Incident
+
         query = query.join(Incident, Event.id == Incident.event_id).where(
             Incident.severity == severity
         )
@@ -100,9 +99,7 @@ async def delete_event(db: AsyncSession, event_id: str) -> bool:
     return True
 
 
-async def update_event_status(
-    db: AsyncSession, event_id: str, status: str
-) -> Event | None:
+async def update_event_status(db: AsyncSession, event_id: str, status: str) -> Event | None:
     """
     Update the status of an event.
     Called by the crew runner to move from pending → processing → resolved/failed.
@@ -111,7 +108,7 @@ async def update_event_status(
     if not event:
         return None
     event.status = status
-    event.updated_at = datetime.now(timezone.utc)
+    event.updated_at = datetime.now(UTC)
     await db.commit()
     await db.refresh(event)
     return event

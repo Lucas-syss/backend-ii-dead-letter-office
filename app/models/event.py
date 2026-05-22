@@ -75,4 +75,6 @@ class Event(UUIDMixin, TimestampMixin, Base):
     )
 
     def __repr__(self) -> str:
-        return f"<Event id={self.id} source={self.source} service={self.service} status={self.status}>"
+        return (
+            f"<Event id={self.id} source={self.source} service={self.service} status={self.status}>"
+        )

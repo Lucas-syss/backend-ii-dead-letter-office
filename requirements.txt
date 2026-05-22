@@ -13,6 +13,7 @@ pydantic==2.9.2
 pydantic-settings==2.5.2
 python-dotenv==1.0.1
 setuptools>=69.0.0
+click==8.1.7
 # AI agents
 crewai==0.80.0
 

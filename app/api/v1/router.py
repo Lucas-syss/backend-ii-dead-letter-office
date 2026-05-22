@@ -1,6 +1,6 @@
 from fastapi import APIRouter
 
-from app.api.v1 import health, events, incidents
+from app.api.v1 import events, health, incidents
 
 router = APIRouter()
 

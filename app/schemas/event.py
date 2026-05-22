@@ -2,10 +2,9 @@ from datetime import datetime
 from typing import Any, Literal
 from uuid import UUID
 
-from pydantic import BaseModel, Field, ConfigDict, field_validator
+from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 from app.schemas.incident import IncidentResponse
-
 
 EventSource = Literal["webhook", "job", "api_call", "unknown"]
 EventStatus = Literal["pending", "processing", "resolved", "escalated", "failed"]
@@ -39,10 +38,10 @@ class EventResponse(BaseModel):
     error_code: int | None = Field(None, examples=[503])
     error_message: str = Field(..., examples=["Upstream timeout after 30s"])
     status: EventStatus = Field(..., examples=["processing"])
-    payload: dict[str, Any] = Field(default_factory=dict)  
-    metadata: dict[str, Any] = Field(default_factory=dict)  
+    payload: dict[str, Any] = Field(default_factory=dict)
+    metadata: dict[str, Any] = Field(default_factory=dict)
     created_at: datetime = Field(..., examples=["2025-05-10T14:32:00Z"])
-    updated_at: datetime | None = None                       
+    updated_at: datetime | None = None
     incident: IncidentResponse | None = None
 
 
@@ -53,10 +52,11 @@ class EventListResponse(BaseModel):
     limit: int = Field(..., examples=[20])
     offset: int = Field(..., examples=[0])
     items: list[EventResponse]
-    
+
 
 class EventIngestResponse(BaseModel):
     """Returned immediately after POST /ingest (202 Accepted)."""
+
     event_id: str
     status: str
     message: str

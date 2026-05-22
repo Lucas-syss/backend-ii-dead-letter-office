@@ -6,11 +6,9 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
 from app.api.v1.router import router as v1_router
-from app.models.event import Event      
-from app.models.incident import Incident 
 from app.config import settings
-from app.db.session import engine
 from app.db.base import Base
+from app.db.session import engine
 
 # ── Logging ───────────────────────────────────────────────────────────────
 logging.basicConfig(
@@ -60,7 +58,7 @@ def create_app() -> FastAPI:
     # ── CORS ──────────────────────────────────────────────────
     app.add_middleware(
         CORSMiddleware,
-        allow_origins=["*"],  
+        allow_origins=["*"],
         allow_credentials=True,
         allow_methods=["*"],
         allow_headers=["*"],
@@ -86,7 +84,6 @@ def create_app() -> FastAPI:
     app.include_router(v1_router, prefix="/api/v1")
 
     return app
-
 
 
 app = create_app()

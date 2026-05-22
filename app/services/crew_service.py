@@ -1,5 +1,6 @@
 import re
 from pathlib import Path
+
 from app.agents.crew import run_triage_diagnosis
 
 
@@ -25,14 +26,13 @@ def _parse_severity(raw: str) -> str:
 def run_crew(event_data: dict) -> dict:
     crew_result = run_triage_diagnosis(event_data)
 
-
     outputs = crew_result.tasks_output
 
-    triage     = _parse_triage(outputs[0].raw) if len(outputs) > 0 else {}
-    root_cause = outputs[1].raw.strip()        if len(outputs) > 1 else "Unknown"
-    remediation = outputs[2].raw.strip()       if len(outputs) > 2 else "None"
-    severity   = _parse_severity(outputs[3].raw) if len(outputs) > 3 else "P3"
-    report_md  = outputs[4].raw.strip()        if len(outputs) > 4 else str(crew_result)
+    triage = _parse_triage(outputs[0].raw) if len(outputs) > 0 else {}
+    root_cause = outputs[1].raw.strip() if len(outputs) > 1 else "Unknown"
+    remediation = outputs[2].raw.strip() if len(outputs) > 2 else "None"
+    severity = _parse_severity(outputs[3].raw) if len(outputs) > 3 else "P3"
+    report_md = outputs[4].raw.strip() if len(outputs) > 4 else str(crew_result)
 
     reports_dir = Path.cwd() / "reports"
     reports_dir.mkdir(parents=True, exist_ok=True)
