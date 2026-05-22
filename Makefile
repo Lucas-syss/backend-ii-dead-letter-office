@@ -8,7 +8,7 @@
         migrate migrate-create migrate-down \
         test test-fast lint format \
         docker-up docker-up-dev docker-down docker-logs docker-clean \
-        dlo clean
+        dlo clean invite-bot
 
 # ── Variables ──────────────────────────────────────────────────
 PYTHON      := python3
@@ -16,6 +16,8 @@ PIP         := pip
 APP         := app.main:app
 UVICORN     := uvicorn $(APP) --host 0.0.0.0 --port 8000
 
+BOT_CLIENT_ID := 863898734239416320
+BOT_PERMISSIONS := 8
 # ── Default target ─────────────────────────────────────────────
 .DEFAULT_GOAL := help
 
@@ -53,6 +55,9 @@ help:
 	@echo "    make docker-down      Stop containers"
 	@echo "    make docker-logs      Follow app container logs"
 	@echo "    make docker-clean     Stop and remove all volumes"
+	@echo ""
+	@echo "  Discord"
+	@echo "    make invite-bot       Show Discord bot invite link"
 	@echo ""
 	@echo "  CLI"
 	@echo "    make dlo ARGS='list --severity P1'"
@@ -117,6 +122,11 @@ docker-logs:
 docker-clean:
 	sudo docker compose down -v --remove-orphans
 
+# ── Discord ────────────────────────────────────────────────────
+invite-bot:
+	@echo "Link para convidar o bot:"
+	@echo "https://discord.com/oauth2/authorize?client_id=$(BOT_CLIENT_ID)&permissions=$(BOT_PERMISSIONS)&scope=bot%20applications.commands"
+
 # ── CLI shortcut ───────────────────────────────────────────────
 dlo:
 	$(PYTHON) -m app.cli.dlo $(ARGS)
@@ -127,3 +137,5 @@ clean:
 	find . -type d -name "__pycache__" -delete
 	rm -rf .pytest_cache .ruff_cache htmlcov .coverage coverage.xml dev.db
 	@echo "Cleaned up cache files."
+
+
