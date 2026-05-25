@@ -2,22 +2,24 @@ import logging
 
 from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, Query, status
 from sqlalchemy.ext.asyncio import AsyncSession
-from app.db.session import AsyncSessionLocal
+
 from app.api.deps import get_db
+from app.db.session import AsyncSessionLocal
 from app.schemas.event import (
     EventIngestResponse,
     EventListResponse,
     EventResponse,
     FailedEventCreate,
 )
-from app.services import event_service
 from app.schemas.incident import IncidentResponse
+from app.services import event_service
 
 logger = logging.getLogger(__name__)
 router = APIRouter()
 
 
 # ── Helpers ───────────────────────────────────────────────────────────────
+
 
 def _build_event_response(event) -> EventResponse:
     incident = None
@@ -50,9 +52,11 @@ def _build_event_response(event) -> EventResponse:
         incident=incident,
     )
 
+
 async def _trigger_crew(event_id: str) -> None:
     """Background task — runs the CrewAI crew for a given event."""
     import asyncio
+
     from app.models.incident import Incident
     from app.services.crew_service import run_crew
 
@@ -90,7 +94,10 @@ async def _trigger_crew(event_id: str) -> None:
         await db.commit()
         await event_service.update_event_status(db, event_id, "resolved")
         logger.info("Incident saved for event_id=%s", event_id)
+
+
 # ── Routes ────────────────────────────────────────────────────────────────
+
 
 @router.post(
     "/ingest",

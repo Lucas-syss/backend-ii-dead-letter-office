@@ -10,11 +10,10 @@ Commands:
     dlo report --id <uuid>           Print the incident report for an event
     dlo retry --id <uuid>            Re-trigger remediation for an incident
 """
-
+from typing import Optional
 import asyncio
 import json
 from pathlib import Path
-from typing import Optional
 
 import typer
 from rich import print as rprint
@@ -36,6 +35,7 @@ console = Console()
 
 # ── DB helper ─────────────────────────────────────────────────────────────
 
+
 async def _get_db():
     """
     Returns an async DB session for CLI use.
@@ -46,6 +46,7 @@ async def _get_db():
 
 
 # ── Commands ──────────────────────────────────────────────────────────────
+
 
 @app.command()
 def ingest(
@@ -79,17 +80,17 @@ def ingest(
             data = FailedEventCreate(**raw)
         except Exception as exc:
             rprint(f"[red]❌ Invalid event payload:[/red] {exc}")
-            raise typer.Exit(code=1)
+            raise typer.Exit(code=1) from exc
 
         async with AsyncSessionLocal() as db:
             event = await event_service.create_event(db, data)
 
-        rprint(f"[green]✓ Event ingested[/green]")
+        rprint("[green]✓ Event ingested[/green]")
         rprint(f"  Event ID : [bold]{event.id}[/bold]")
         rprint(f"  Service  : {event.service}")
         rprint(f"  Source   : {event.source}")
         rprint(f"  Status   : {event.status}")
-        rprint(f"\n[dim]Crew triage runs automatically when the server is running.[/dim]")
+        rprint("\n[dim]Crew triage runs automatically when the server is running.[/dim]")
 
     asyncio.run(_run())
 
@@ -101,17 +102,17 @@ def list_events(
         "--severity",
         "-s",
         help="Filter by severity: P1 | P2 | P3 | P4",
-    ),
+    ), # noqa: UP007
     source: Optional[str] = typer.Option(
         None,
         "--source",
         help="Filter by source: webhook | job | api_call | unknown",
-    ),
+    ), # noqa: UP007
     status: Optional[str] = typer.Option(
         None,
         "--status",
         help="Filter by status: pending | processing | resolved | escalated | failed",
-    ),
+    ), # noqa: UP007
     limit: int = typer.Option(20, "--limit", "-l", help="Max results to show"),
 ) -> None:
     """
@@ -189,7 +190,9 @@ def report(
             raise typer.Exit(code=1)
 
         if not event.incident:
-            rprint(f"[yellow]⏳ Event '{id}' has no incident yet — crew may still be processing.[/yellow]")
+            rprint(
+                f"[yellow]⏳ Event '{id}' has no incident yet — crew may still be processing.[/yellow]"
+            )
             rprint(f"   Status: [bold]{event.status}[/bold]")
             raise typer.Exit(code=0)
 
@@ -203,7 +206,9 @@ def report(
         rprint(f"  Severity   : [{severity_colour}]{inc.severity}[/{severity_colour}]")
         rprint(f"  Event type : {inc.event_type}")
         rprint(f"  Escalated  : {'[red]Yes[/red]' if inc.escalated else '[green]No[/green]'}")
-        rprint(f"  Remediated : {'[green]Yes[/green]' if inc.remediation_attempted else '[yellow]No[/yellow]'}")
+        rprint(
+            f"  Remediated : {'[green]Yes[/green]' if inc.remediation_attempted else '[yellow]No[/yellow]'}"
+        )
         rprint()
 
         # Full Markdown report
@@ -238,7 +243,7 @@ def retry(
 
             incident = await incident_service.retry_remediation(db, event.incident)
 
-        rprint(f"[green]✓ Remediation retry triggered[/green]")
+        rprint("[green]✓ Remediation retry triggered[/green]")
         rprint(f"  Incident ID : [bold]{incident.id}[/bold]")
         rprint(f"  Result      : {incident.remediation_result}")
 

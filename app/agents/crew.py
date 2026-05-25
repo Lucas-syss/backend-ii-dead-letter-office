@@ -1,10 +1,11 @@
 from crewai import Crew, Process, Task
 
 from app.agents.diagnosis_agent import build_diagnosis_agent
-from app.agents.triage_agent import build_triage_agent
 from app.agents.remediation_agent import build_remediation_agent
-from app.agents.severity_agent import build_severity_agent
 from app.agents.reporter_agent import build_reporter_agent
+from app.agents.severity_agent import build_severity_agent
+from app.agents.triage_agent import build_triage_agent
+
 
 def build_triage_diagnosis_crew() -> Crew:
     triage_agent = build_triage_agent()
@@ -66,13 +67,11 @@ def build_triage_diagnosis_crew() -> Crew:
         description=(
             "Based on the triage classification, diagnosis, and remediation output, "
             "classify the severity of this incident.\n\n"
-
             "Severity rubric:\n"
             "- P1: Production down, revenue impacted, or many users affected\n"
             "- P2: Degraded production or partial outage\n"
             "- P3: Non-critical path failing with workaround available\n"
             "- P4: Minor issue or development/staging only\n\n"
-
             "Return only one value: P1, P2, P3, or P4."
         ),
         expected_output="One of: P1, P2, P3, or P4",
@@ -84,7 +83,6 @@ def build_triage_diagnosis_crew() -> Crew:
         description=(
             "Generate a professional Markdown incident report using all "
             "previous agent outputs.\n\n"
-
             "The report must contain:\n"
             "# Summary\n"
             "# Timeline\n"
@@ -103,9 +101,8 @@ def build_triage_diagnosis_crew() -> Crew:
         ],
     )
 
-
     return Crew(
-        agents=[triage_agent, diagnosis_agent, remediation_agent , severity_agent, reporter_agent],
+        agents=[triage_agent, diagnosis_agent, remediation_agent, severity_agent, reporter_agent],
         tasks=[triage_task, diagnosis_task, remediation_task, severity_task, reporter_task],
         process=Process.sequential,
         verbose=True,

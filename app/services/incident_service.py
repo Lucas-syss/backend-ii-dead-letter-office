@@ -7,7 +7,6 @@ from sqlalchemy.orm import selectinload
 
 from app.config import settings
 from app.models.incident import Incident
-from app.models.event import Event
 
 logger = logging.getLogger(__name__)
 
@@ -18,9 +17,7 @@ async def get_incident(db: AsyncSession, incident_id: str) -> Incident | None:
     Returns None if not found.
     """
     result = await db.execute(
-        select(Incident)
-        .options(selectinload(Incident.event))
-        .where(Incident.id == incident_id)
+        select(Incident).options(selectinload(Incident.event)).where(Incident.id == incident_id)
     )
     return result.scalar_one_or_none()
 
@@ -30,9 +27,7 @@ async def get_incident_by_event(db: AsyncSession, event_id: str) -> Incident | N
     Fetch the incident linked to a specific event ID.
     Returns None if not found.
     """
-    result = await db.execute(
-        select(Incident).where(Incident.event_id == event_id)
-    )
+    result = await db.execute(select(Incident).where(Incident.event_id == event_id))
     return result.scalar_one_or_none()
 
 
@@ -81,7 +76,6 @@ async def mark_escalated(db: AsyncSession, incident: Incident) -> Incident:
     await db.commit()
     await db.refresh(incident)
 
-    
     webhook_url = settings.ESCALATION_WEBHOOK_URL
     if webhook_url:
         payload = {
@@ -115,14 +109,15 @@ async def mark_escalated(db: AsyncSession, incident: Incident) -> Incident:
 
     return incident
 
+
 async def retry_remediation(db: AsyncSession, incident: Incident) -> Incident:
     """
     Re-runs the full crew pipeline for an existing incident and updates the result.
     """
     import asyncio
+
     from app.services.crew_service import run_crew
 
-    
     event = incident.event
     event_data = {
         "source": event.source,
