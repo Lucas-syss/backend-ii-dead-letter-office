@@ -12,7 +12,6 @@ from app.main import app
 from app.models.event import Event  # noqa: F401
 from app.models.incident import Incident  # noqa: F401
 
-
 TEST_DATABASE_URL = "sqlite+aiosqlite:///:memory:"
 
 test_engine = create_async_engine(

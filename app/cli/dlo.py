@@ -97,18 +97,18 @@ def ingest(
 
 @app.command("list")
 def list_events(
-    severity: Optional[str] = typer.Option(
+    severity: str | None = typer.Option(
         None,
         "--severity",
         "-s",
         help="Filter by severity: P1 | P2 | P3 | P4",
-    ), # noqa: UP007
-    source: Optional[str] = typer.Option(
+    ),
+    source: str | None = typer.Option(
         None,
         "--source",
         help="Filter by source: webhook | job | api_call | unknown",
-    ), # noqa: UP007
-    status: Optional[str] = typer.Option(
+    ),
+    status: str | None = typer.Option(
         None,
         "--status",
         help="Filter by status: pending | processing | resolved | escalated | failed",

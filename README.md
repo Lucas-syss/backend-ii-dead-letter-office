@@ -1,5 +1,9 @@
 # Dead Letter Office
 
+# Dead Letter Office
+
+[![CI](https://github.com/Lucas-syss/backend-ii-dead-letter-office/actions/workflows/ci.yml/badge.svg)](https://github.com/Lucas-syss/backend-ii-dead-letter-office/actions/workflows/ci.yml)
+
 > AI-powered backend triage system for failed system events.
 
 Most systems silently drop failed jobs, webhooks, or API calls.
