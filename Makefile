@@ -4,8 +4,8 @@
 #  Run `make help` to see all available targets.
 # ══════════════════════════════════════════════════════════════
 
-.PHONY: help install install-dev run dev \
-        migrate migrate-create migrate-down \
+.PHONY: help all all-dev install install-dev run dev bot \
+        migrate migrate-create migrate-down reset-db \
         test test-fast lint format \
         docker-up docker-up-dev docker-down docker-logs docker-clean \
         dlo clean invite-bot
@@ -18,6 +18,7 @@ UVICORN     := uvicorn $(APP) --host 0.0.0.0 --port 8000
 
 BOT_CLIENT_ID := 863898734239416320
 BOT_PERMISSIONS := 8
+
 # ── Default target ─────────────────────────────────────────────
 .DEFAULT_GOAL := help
 
@@ -29,17 +30,21 @@ help:
 	@echo "  ╚══════════════════════════════════════════════╝"
 	@echo ""
 	@echo "  Setup"
+	@echo "    make all              Install deps, migrate DB and start server"
+	@echo "    make all-dev          Install dev deps, migrate DB and start dev server"
 	@echo "    make install          Install production dependencies"
 	@echo "    make install-dev      Install dev + test dependencies"
 	@echo ""
 	@echo "  Run"
-	@echo "    make run              Start server (production mode)"
+	@echo "    make run              Start server production mode"
 	@echo "    make dev              Start server with hot reload"
+	@echo "    make bot              Start Discord bot"
 	@echo ""
 	@echo "  Database"
 	@echo "    make migrate          Apply all pending migrations"
-	@echo "    make migrate-create   Create a new migration (prompts for name)"
+	@echo "    make migrate-create   Create a new migration prompts for name"
 	@echo "    make migrate-down     Roll back one migration"
+	@echo "    make reset-db         Delete local SQLite DB and apply migrations"
 	@echo ""
 	@echo "  Testing"
 	@echo "    make test             Run full test suite with coverage"
@@ -50,8 +55,8 @@ help:
 	@echo "    make format           Run Ruff formatter"
 	@echo ""
 	@echo "  Docker"
-	@echo "    make docker-up        Build and start prod stack (FastAPI + PostgreSQL)"
-	@echo "    make docker-up-dev    Start dev stack (SQLite, hot reload)"
+	@echo "    make docker-up        Build and start prod stack FastAPI + PostgreSQL"
+	@echo "    make docker-up-dev    Start dev stack SQLite, hot reload"
 	@echo "    make docker-down      Stop containers"
 	@echo "    make docker-logs      Follow app container logs"
 	@echo "    make docker-clean     Stop and remove all volumes"
@@ -67,6 +72,10 @@ help:
 	@echo ""
 
 # ── Setup ──────────────────────────────────────────────────────
+all: install migrate run
+
+all-dev: install-dev migrate dev
+
 install:
 	$(PIP) install -r requirements.txt
 
@@ -81,6 +90,9 @@ run:
 dev:
 	$(UVICORN) --reload
 
+bot:
+	$(PYTHON) -m app.bot.discord_bot
+
 # ── Database ───────────────────────────────────────────────────
 migrate:
 	alembic upgrade head
@@ -91,6 +103,10 @@ migrate-create:
 
 migrate-down:
 	alembic downgrade -1
+
+reset-db:
+	rm -f dev.db
+	alembic upgrade head
 
 # ── Testing ────────────────────────────────────────────────────
 test:
@@ -137,5 +153,3 @@ clean:
 	find . -type d -name "__pycache__" -delete
 	rm -rf .pytest_cache .ruff_cache htmlcov .coverage coverage.xml dev.db
 	@echo "Cleaned up cache files."
-
-
