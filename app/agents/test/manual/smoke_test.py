@@ -5,7 +5,7 @@ from app.agents.triage_agent import build_triage_agent
 triage_agent = build_triage_agent()
 
 triage_task = Task(
-    description=("Analyze this failed event:\n" "{event}\n\n" "Classify the incident type."),
+    description=("Analyze this failed event:\n{event}\n\nClassify the incident type."),
     expected_output="Short classification of the incident",
     agent=triage_agent,
 )
