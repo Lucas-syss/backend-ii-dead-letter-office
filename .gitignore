@@ -16,7 +16,6 @@ venv/
 .venv/
 env/
 ENV/
-uv.lock
 # Environment variables — never commit these
 .env
 .env.local
