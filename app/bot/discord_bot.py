@@ -9,8 +9,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 DISCORD_BOT_TOKEN = os.getenv("DISCORD_BOT_TOKEN")
-BACKEND_API_URL = os.getenv(
-    "BACKEND_API_URL", "http://localhost:8000").rstrip("/")
+BACKEND_API_URL = os.getenv("BACKEND_API_URL", "http://localhost:8000").rstrip("/")
 COMMAND_PREFIX = os.getenv("DISCORD_COMMAND_PREFIX", "$")
 
 POLL_MAX_ATTEMPTS = int(os.getenv("DISCORD_REPORT_POLL_ATTEMPTS", "90"))
@@ -35,8 +34,7 @@ async def on_message(message: discord.Message):
     if not message.content.startswith(f"{COMMAND_PREFIX}report"):
         return
 
-    raw_error = message.content.replace(
-        f"{COMMAND_PREFIX}report", "", 1).strip()
+    raw_error = message.content.replace(f"{COMMAND_PREFIX}report", "", 1).strip()
 
     if not raw_error:
         await message.reply(
@@ -89,9 +87,7 @@ async def ingest_error(raw_error: str, message: discord.Message) -> str:
                 json=payload,
             )
     except httpx.RequestError as exc:
-        raise RuntimeError(
-            f"não consegui contactar o backend em {BACKEND_API_URL}: {exc}"
-        ) from exc
+        raise RuntimeError(f"não consegui contactar o backend em {BACKEND_API_URL}: {exc}") from exc
 
     if response.status_code >= 400:
         detail = response.text.strip() or response.reason_phrase
@@ -141,6 +137,7 @@ async def wait_for_report_and_reply(event_id: str, message: discord.Message):
         "Vê os logs do backend ou consulta o evento mais tarde."
     )
 
+
 async def send_incident_report(
     message: discord.Message,
     event_data: dict,
@@ -162,6 +159,7 @@ async def send_incident_report(
         "📎 Relatório completo em anexo.",
         file=report_file,
     )
+
 
 def truncate(text: str | None, limit: int = 900) -> str:
     if not text:

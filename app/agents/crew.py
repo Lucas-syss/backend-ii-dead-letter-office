@@ -48,9 +48,7 @@ def build_triage_diagnosis_crew() -> Crew:
             "service_tier: critical, high, medium, or low\n"
             "affected_component: the affected service or component"
         ),
-        expected_output=(
-            "Exactly three lines: event_type, service_tier, and affected_component."
-        ),
+        expected_output=("Exactly three lines: event_type, service_tier, and affected_component."),
         agent=triage_agent,
     )
 
@@ -98,10 +96,12 @@ def build_triage_diagnosis_crew() -> Crew:
             "- Include customer/business remediation, technical recovery, data repair, service recovery, "
             "prevention, and validation.\n\n"
             "Rules:\n"
+            "- Include actions to prevent future occurrences.\n"
             "- Include immediate customer remediation first.\n"
             "- Include immediate technical remediation.\n"
             "- Include data consistency repair steps.\n"
             "- Include service recovery steps.\n"
+            "- Include clear remediation steps.\n"
             "- Include long-term prevention steps.\n"
             "- Include validation checks to prove the fix worked.\n"
             "- Use concrete numbers, service names, endpoints, timestamps, and log messages from the event payload.\n"
@@ -132,9 +132,9 @@ def build_triage_diagnosis_crew() -> Crew:
             "Original event:\n"
             "{event}\n\n"
             "Severity rubric:\n"
-            "- P1: production down, checkout/payment failure, revenue or financial impact, duplicate charges, "
+            "- P1: Production down, checkout/payment failure, revenue or financial impact, duplicate charges, "
             "data inconsistency, many users/orders affected, critical customer impact, or severe business impact\n"
-            "- P2: degraded production, partial outage, limited customer impact, or important workflow impaired\n"
+            "- P2: Degraded production, partial outage, limited customer impact, or important workflow impaired\n"
             "- P3: non-critical path failing with workaround available\n"
             "- P4: minor issue, development/staging only, cosmetic issue, or no customer impact\n\n"
             "Severity rules:\n"
