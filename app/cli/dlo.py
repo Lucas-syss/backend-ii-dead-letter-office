@@ -10,6 +10,7 @@ Commands:
     dlo report --id <uuid>           Print the incident report for an event
     dlo retry --id <uuid>            Re-trigger remediation for an incident
 """
+
 from typing import Optional
 import asyncio
 import json
@@ -102,17 +103,17 @@ def list_events(
         "--severity",
         "-s",
         help="Filter by severity: P1 | P2 | P3 | P4",
-    ), # noqa: UP007
+    ),  # noqa: UP007
     source: Optional[str] = typer.Option(
         None,
         "--source",
         help="Filter by source: webhook | job | api_call | unknown",
-    ), # noqa: UP007
+    ),  # noqa: UP007
     status: Optional[str] = typer.Option(
         None,
         "--status",
         help="Filter by status: pending | processing | resolved | escalated | failed",
-    ), # noqa: UP007
+    ),  # noqa: UP007
     limit: int = typer.Option(20, "--limit", "-l", help="Max results to show"),
 ) -> None:
     """
