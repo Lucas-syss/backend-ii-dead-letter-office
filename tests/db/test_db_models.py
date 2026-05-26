@@ -89,9 +89,7 @@ async def test_incident_crud(db_session):
 
     assert incident.escalated is True
 
-    result = await db_session.execute(
-        select(Incident).where(Incident.id == incident.id)
-    )
+    result = await db_session.execute(select(Incident).where(Incident.id == incident.id))
     saved_incident = result.scalar_one_or_none()
 
     assert saved_incident is not None
@@ -100,7 +98,5 @@ async def test_incident_crud(db_session):
     await db_session.delete(saved_incident)
     await db_session.commit()
 
-    result = await db_session.execute(
-        select(Incident).where(Incident.id == incident.id)
-    )
+    result = await db_session.execute(select(Incident).where(Incident.id == incident.id))
     assert result.scalar_one_or_none() is None

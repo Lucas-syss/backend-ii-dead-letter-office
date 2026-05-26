@@ -1,6 +1,5 @@
 import pytest
 
-
 VALID_EVENT = {
     "source": "webhook",
     "service": "payment-service",
