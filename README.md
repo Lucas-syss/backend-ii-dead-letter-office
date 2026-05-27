@@ -456,47 +456,22 @@ LOG_LEVEL=INFO
 
 ```bash
 cp .env.example .env
+# Abrir .env e preencher NVIDIA_API_KEY (llama-3.1-70b-instruct)
 make docker-up
 ```
 
-A API fica disponível em `http://localhost:8000`.  
-Swagger UI: `http://localhost:8000/docs`  
+A API fica disponível em `http://localhost:8000`.
+Swagger UI: `http://localhost:8000/docs`
 ReDoc: `http://localhost:8000/redoc`
 
 ### Opção 2 — Desenvolvimento local
 
 ```bash
 cp .env.example .env
-make install-dev
-make migrate
-make dev
+# Abrir .env e preencher NVIDIA_API_KEY
+make all-dev
 ```
 
-Sem `Makefile`:
-
-```bash
-python -m venv .venv
-source .venv/bin/activate  # Linux/macOS
-
-pip install -r requirements.txt
-pip install -r requirements-dev.txt
-
-alembic upgrade head
-uvicorn app.main:app --reload
-```
-
-Em Windows PowerShell:
-
-```powershell
-python -m venv .venv
-.venv\Scripts\Activate.ps1
-
-pip install -r requirements.txt
-pip install -r requirements-dev.txt
-
-alembic upgrade head
-uvicorn app.main:app --reload
-```
 
 ---
 

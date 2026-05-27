@@ -8,15 +8,16 @@
         migrate migrate-create migrate-down reset-db \
         test test-fast lint format \
         docker-up docker-up-dev docker-down docker-logs docker-clean \
-        dlo clean invite-bot
+        dlo clean invite-bot venv
 
 # ── Variables ──────────────────────────────────────────────────
-PYTHON      := python3
-PIP         := pip
+VENV        := .venv
+PYTHON      := $(VENV)/bin/python3
+PIP         := $(VENV)/bin/pip
 APP         := app.main:app
-UVICORN     := uvicorn $(APP) --host 0.0.0.0 --port 8000
+UVICORN     := $(VENV)/bin/uvicorn $(APP) --host 0.0.0.0 --port 8000
 
-BOT_CLIENT_ID := 863898734239416320
+BOT_CLIENT_ID := $(shell grep -s DISCORD_CLIENT_ID .env | cut -d= -f2)
 BOT_PERMISSIONS := 8
 
 # ── Default target ─────────────────────────────────────────────
@@ -71,15 +72,22 @@ help:
 	@echo "    make clean            Remove cache files and dev database"
 	@echo ""
 
+# ── Venv ───────────────────────────────────────────────────────
+venv:
+	@if [ ! -d "$(VENV)" ]; then \
+		echo "Creating virtual environment..."; \
+		python3 -m venv $(VENV); \
+	fi
+
 # ── Setup ──────────────────────────────────────────────────────
 all: install migrate run
 
 all-dev: install-dev migrate dev
 
-install:
+install: venv
 	$(PIP) install -r requirements.txt
 
-install-dev:
+install-dev: venv
 	$(PIP) install -r requirements.txt -r requirements-dev.txt
 	$(PIP) install -e .
 
@@ -95,32 +103,32 @@ bot:
 
 # ── Database ───────────────────────────────────────────────────
 migrate:
-	alembic upgrade head
+	$(VENV)/bin/alembic upgrade head
 
 migrate-create:
 	@read -p "Migration name: " name; \
-	alembic revision --autogenerate -m "$$name"
+	$(VENV)/bin/alembic revision --autogenerate -m "$$name"
 
 migrate-down:
-	alembic downgrade -1
+	$(VENV)/bin/alembic downgrade -1
 
 reset-db:
 	rm -f dev.db
-	alembic upgrade head
+	$(VENV)/bin/alembic upgrade head
 
 # ── Testing ────────────────────────────────────────────────────
 test:
-	pytest tests/ -v --cov=app --cov-report=term-missing
+	$(VENV)/bin/pytest tests/ -v --cov=app --cov-report=term-missing
 
 test-fast:
-	pytest tests/ -v -x
+	$(VENV)/bin/pytest tests/ -v -x
 
 # ── Code quality ───────────────────────────────────────────────
 lint:
-	ruff check app/ tests/
+	$(VENV)/bin/ruff check app/ tests/
 
 format:
-	ruff format app/ tests/
+	$(VENV)/bin/ruff format app/ tests/
 
 # ── Docker ─────────────────────────────────────────────────────
 docker-up:
@@ -140,9 +148,11 @@ docker-clean:
 
 # ── Discord ────────────────────────────────────────────────────
 invite-bot:
-	@echo "Link para convidar o bot:"
-	@echo "https://discord.com/oauth2/authorize?client_id=$(BOT_CLIENT_ID)&permissions=$(BOT_PERMISSIONS)&scope=bot%20applications.commands"
-
+	@if [ -z "$(BOT_CLIENT_ID)" ]; then \
+		echo "DISCORD_CLIENT_ID not set in .env"; \
+	else \
+		echo "https://discord.com/oauth2/authorize?client_id=$(BOT_CLIENT_ID)&permissions=$(BOT_PERMISSIONS)&scope=bot%20applications.commands"; \
+	fi
 # ── CLI shortcut ───────────────────────────────────────────────
 dlo:
 	$(PYTHON) -m app.cli.dlo $(ARGS)
