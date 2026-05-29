@@ -468,11 +468,19 @@ ReDoc: `http://localhost:8000/redoc`
 
 ```bash
 cp .env.example .env
-# Abrir .env e preencher NVIDIA_API_KEY
+# Abrir .env e preencher NVIDIA_API_KEY DISCORD_BOT_TOKEN DISCORD_BOT_ID
 make all-dev
 ```
 
-
+```bash
+# Abrir um novo terminal 
+make invite-bot
+make bot
+```
+Após o bot estar online, enviar no servidor de discord onde o bot se encontra:
+```bash
+$report payment-service 503 upstream timeout ao chamar /charge
+```
 ---
 
 ## Utilização da API
