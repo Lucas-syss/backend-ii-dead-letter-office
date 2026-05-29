@@ -1,0 +1,21 @@
+services:
+
+  app:
+    build: .
+    # Override CMD to enable hot reload
+    command: >
+      sh -c "alembic upgrade head &&
+             uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload"
+    ports:
+      - "8000:8000"
+    env_file:
+      - .env
+    environment:
+      DATABASE_URL: sqlite+aiosqlite:///./dev.db
+      ENV: development
+    volumes:
+      # Mount source code for hot reload
+      - .:/app
+      # Persist SQLite database and reports between restarts
+      - ./dev.db:/app/dev.db
+      - ./reports:/app/reports

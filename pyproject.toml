@@ -1,0 +1,69 @@
+[project]
+name = "dead-letter-office"
+version = "1.0.0"
+description = "AI-powered backend triage system for failed system events"
+requires-python = ">=3.12"
+readme = "README.md"
+dependencies = [
+    "aiosqlite==0.20.0",
+    "alembic==1.13.3",
+    "asyncpg==0.30.0",
+    "crewai==0.80.0",
+    "discord-py>=2.7.1",
+    "fastapi==0.115.0",
+    "greenlet>=3.5.1",
+    "httpx==0.27.2",
+    "pydantic==2.9.2",
+    "pydantic-settings==2.5.2",
+    "pytest>=9.0.3",
+    "pytest-asyncio>=1.3.0",
+    "python-dotenv==1.0.1",
+    "setuptools<81",
+    "sqlalchemy==2.0.36",
+    "typer==0.12.5",
+    "uvicorn[standard]==0.30.6",
+]
+
+[project.scripts]
+dlo = "app.cli.dlo:app"
+
+[tool.setuptools.packages.find]
+include = ["app*"]
+
+# ── Ruff (linter + formatter) ──────────────────────────────────────────────
+[tool.ruff]
+target-version = "py312"
+line-length = 100
+
+[tool.ruff.lint]
+select = [
+    "E",   # pycodestyle errors
+    "W",   # pycodestyle warnings
+    "F",   # pyflakes
+    "I",   # isort
+    "B",   # flake8-bugbear
+    "C4",  # flake8-comprehensions
+    "UP",  # pyupgrade
+]
+ignore = [
+    "E501",  # line too long — handled by formatter
+    "B008",  # do not perform function calls in default arguments 
+]
+
+[tool.ruff.lint.isort]
+known-first-party = ["app"]
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+
+# ── Pytest ─────────────────────────────────────────────────────────────────
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+testpaths = ["tests"]
+
+[dependency-groups]
+dev = [
+    "pytest-cov>=7.1.0",
+    "ruff>=0.15.14",
+]
